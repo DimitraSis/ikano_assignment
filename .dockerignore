@@ -1,5 +1,4 @@
 venv/
 __pycache__/
 .pytest_cache/
-*.pyc
-loan_calculations.db
+.git/

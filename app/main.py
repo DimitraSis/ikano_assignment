@@ -3,10 +3,12 @@ from app.services.fibonacci import calculate_fibonacci
 from app.services.factorial import calculate_factorial
 from app.services.loan import calculate_monthly_payment
 from app.models.schemas import LoanRequest
-
-
+from app.database.database import init_database, save_loan_calculation
 
 app = FastAPI()
+
+init_database()
+
 
 @app.get("/")
 def root():
@@ -41,15 +43,26 @@ def factorial(n: int):
         )
     
 @app.post("/loan_repayment",
-         summary="Calculate monthly loan repayment")
+          summary="Calculate monthly loan repayment")
 def loan(request: LoanRequest):
 
     try:
         result = calculate_monthly_payment(
-            request.principal, 
-            request.annual_rate, 
-            request.months)
-        return {"monthly_payment": result}
+            request.principal,
+            request.annual_rate,
+            request.months
+        )
+
+        save_loan_calculation(
+            request.principal,
+            request.annual_rate,
+            request.months,
+            result
+        )
+
+        return {
+            "monthly_payment": result
+        }
 
     except ValueError as error:
         raise HTTPException(

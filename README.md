@@ -15,6 +15,8 @@ The application provides:
 - Python 3
 - FastAPI
 - Uvicorn
+- SQLite
+- Docker
 - Decimal for financial precision
 
 ---
@@ -23,6 +25,10 @@ The application provides:
 
 ```text
 app/
+
+│
+├── database/
+│   └── database.py
 │
 ├── models/
 │   └── schemas.py
@@ -38,11 +44,14 @@ app/
 
 tests/
 │
+├── test_api.py
 ├── test_factorial.py
 ├── test_fibonacci.py
 └── test_loan.py
 
+.dockerignore
 .gitignore
+Dockerfile
 README.md
 pytest.ini
 requirements.txt
@@ -90,6 +99,24 @@ Handles:
 - proper rounding
 
 ---
+
+# Data Persistence
+
+Loan repayment calculations are automatically stored in a local SQLite database.
+
+Stored fields:
+
+- principal
+- annual_rate
+- months
+- monthly_payment
+- created_at (timestamp)
+
+Database file:
+
+```text
+loan_calculations.db
+```
 
 # Setup
 
@@ -219,11 +246,12 @@ Invalid requests return appropriate HTTP 400 responses.
 
 # Testing
 
-Unit tests are implemented using pytest.
+Tests are implemented using pytest and FastAPI TestClient.
 
 Tests cover:
 
-- valid calculations
+- business logic calculations
+- API endpoint behavior
 - edge cases
 - invalid inputs
 - validation behavior
@@ -237,7 +265,29 @@ pytest
 Example successful output:
 
 ```text
-11 passed in 0.05s
+19 passed
+```
+
+---
+
+# Docker
+
+Build the Docker image:
+
+```bash
+docker build -t ikano-assignment .
+```
+
+Run the container:
+
+```bash
+docker run -p 8000:8000 ikano-assignment
+```
+
+Swagger UI:
+
+```text
+http://localhost:8000/docs
 ```
 
 ---
@@ -246,15 +296,14 @@ Example successful output:
 
 - Factorial values are limited to 10
 - Loan duration limited to 480 months
-- Negative interest rates allowed down to realistic values
+- Negative interest rates are supported down to -2%
 
 ---
 
 # Limitations
 
 - No authentication
-- No database
-- No persistent storage
+- SQLite used for local persistence only
 - No dedicated frontend UI (Swagger UI provided by FastAPI)
 
 ---
